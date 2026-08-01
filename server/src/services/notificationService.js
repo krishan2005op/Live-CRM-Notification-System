@@ -1,29 +1,28 @@
 const Notification = require("../models/Notification");
 const { getIO } = require("../socket/socket");
+const createNotification = async ({
+    user,
+    title,
+    message,
+    entityType,
+    entityId,
+}) => {
 
-const sendNotification = async ({ user, title, message, entityType, entityId }) => {
-    try {
-        const notification = await Notification.create({
-            user,
-            title,
-            message,
-            entityType,
-            entityId
-        });
+    const notification = await Notification.create({
+        user,
+        title,
+        message,
+        entityType,
+        entityId,
+    });
 
-        // Emit through socket.io
-        const io = getIO();
-        if (io) {
-            io.to(user.toString()).emit("notification", notification);
-        }
+    const io = getIO();
 
-        return notification;
-    } catch (err) {
-        console.error("Error sending notification:", err.message);
-        throw err;
-    }
+    io.to(user.toString()).emit("newNotification", notification);
+
+    return notification;
 };
 
 module.exports = {
-    sendNotification
+    createNotification,
 };

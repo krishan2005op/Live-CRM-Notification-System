@@ -9,6 +9,7 @@ const connectDB = require("./config/db");
 const { initSocket } = require("./socket/socket");
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+
 const app = express();
 
 connectDB();
@@ -25,6 +26,7 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/notifications", notificationRoutes);
+
 app.get("/", (req, res) => {
     res.json({
         message: "CRM Notification API Running"

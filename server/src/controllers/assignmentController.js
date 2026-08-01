@@ -2,7 +2,7 @@ const Assignment = require("../models/Assignment");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Contact = require("../models/Contact");
-
+const { createNotification } = require("../services/notificationService");
 // Create Assignment
 const createAssignment = async (req, res) => {
     try {
@@ -74,20 +74,6 @@ const createAssignment = async (req, res) => {
 
         }
 
-        // Prevent duplicate assignment
-        const duplicate = await Assignment.findOne({
-            user,
-            entityType,
-            entityId,
-            role
-        });
-
-        if (duplicate) {
-            return res.status(409).json({
-                success: false,
-                message: "Assignment already exists"
-            });
-        }
 
         const assignment = await Assignment.create({
             user,
@@ -96,6 +82,23 @@ const createAssignment = async (req, res) => {
             role,
             assignedBy
         });
+        let entityName = "";
+
+if (entityType === "company") {
+    const company = await Company.findById(entityId);
+    entityName = company.name;
+} else {
+    const contact = await Contact.findById(entityId);
+    entityName = contact.name;
+}
+
+await createNotification({
+    user,
+    title: "New Assignment",
+    message: `You have been assigned to ${entityName} as ${role}.`,
+    entityType,
+    entityId,
+});
 
         const populated = await Assignment.findById(
             assignment._id
