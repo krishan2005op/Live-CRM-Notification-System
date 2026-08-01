@@ -9,6 +9,7 @@ const connectDB = require("./config/db");
 const { initSocket } = require("./socket/socket");
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const { startReminderJob } = require("./cron/reminderJob");
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
 const server = http.createServer(app);
 
 initSocket(server);
+startReminderJob();
 
 const PORT = process.env.PORT || 5000;
 
